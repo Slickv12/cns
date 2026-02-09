@@ -3,7 +3,7 @@ import hashlib
 
 def mod_exp(base, exponent, mod):
     result = 1
-    base = base % mod
+    base %= mod
     while exponent > 0:
         if exponent % 2 == 1:
             result = (result * base) % mod
@@ -11,7 +11,6 @@ def mod_exp(base, exponent, mod):
         base = (base * base) % mod
     return result
 
-# Same p and q must be entered
 p = int(input("Enter prime p: "))
 q = int(input("Enter prime q: "))
 
@@ -19,18 +18,10 @@ n = p * q
 phi = (p - 1) * (q - 1)
 e = 7
 
-# Find d (not used but shown for completeness)
-for i in range(1, phi):
-    if (i * e) % phi == 1:
-        d = i
-        break
-
 def encrypt_string(message):
     cipher_list = []
     for ch in message:
-        ascii_val = ord(ch)
-        cipher = mod_exp(ascii_val, e, n)
-        cipher_list.append(cipher)
+        cipher_list.append(mod_exp(ord(ch), e, n))
     return cipher_list
 
 s = socket.socket()
@@ -39,12 +30,12 @@ s.connect(("localhost", 12345))
 msg = input("Enter message: ")
 cipher_text = encrypt_string(msg)
 
-# Create hash
-msg_hash = hashlib.sha256(msg.encode()).hexdigest()
+# MD5 hash generation
+msg_hash = hashlib.md5(msg.encode()).hexdigest()
 
 data = ",".join(map(str, cipher_text)) + "|" + msg_hash
-
 s.send(data.encode())
-print("Encrypted message and hash sent")
+
+print("Encrypted message and MD5 hash sent")
 
 s.close()
